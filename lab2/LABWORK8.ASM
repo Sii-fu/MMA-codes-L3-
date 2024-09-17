@@ -1,0 +1,26 @@
+.MODEL SMALL
+.STACK 100H
+.DATA
+VAR DB '0'
+;STR_VAR DB "ENTER A LINE "
+.CODE
+MAIN PROC
+    MOV AX,@DATA
+    MOV DS,AX
+    
+    MOV AH,01H
+    STAR:
+        INT 21H
+        INC VAR
+        CMP AL, ' '
+    JNE STAR
+  EXIT:
+    MOV AH,02H
+    MOV DL,0AH
+    INT 21H
+    MOV DL,013
+    INT 21H
+    MOV DL,VAR
+    INT 21H
+MAIN ENDP
+END

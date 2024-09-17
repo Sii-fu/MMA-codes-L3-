@@ -1,0 +1,23 @@
+.MODEL SMALL
+.STACK 100H
+.DATA
+VAR DB 'A'
+;STR_VAR DB "ENTER A LINE "
+.CODE
+MAIN PROC
+    MOV AX,@DATA
+    MOV DS,AX
+    
+    MOV AH,02H
+    MOV DL,VAR
+    MOV CX,26
+    STAR:
+        MOV DL,VAR
+        INT 21H
+        MOV DL,' '
+        INT 21H
+        INC VAR
+    LOOP STAR
+  
+MAIN ENDP
+END

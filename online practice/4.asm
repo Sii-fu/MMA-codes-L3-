@@ -1,76 +1,54 @@
-.MODEL small
-.stack 100h
-.data
-    ; larger number between two numbers
-    CHAR1 DB 0
-    CHAR2 DB 0
-    EVENMSG DB "EVEN$"
-    ODDMSG DB "ODD$"
+.MODEL SMALL
+.STACK 100H
+.DATA
+    var1 db 0
+    var2 db 0
+    OBIG DB 10,13,'FIRST NUMBER IS BIG$'
+    TBIG DB 10,13,'SECOND NUMBER IS BIG$'
+    EAL DB 10,13,'BOTH NUMBERS ARE EQUAL$'
 
-.code 
+.CODE 
 MAIN PROC
 
-    ; LARGEST NUMBER
+    MOV AX, @DATA
+    MOV DS, AX
 
-    MOV AX,@Data
-    MOV DS,AX
-    ;code here
+    MOV AH, 01H
+    INT 21H
+    MOV BL, AL
+
     
-    MOV AH,01
+    MOV AH, 01H
     INT 21H
+    MOV BH, AL
 
-    MOV CHAR1,AL
-
-    INT 21H
-
-    MOV CHAR2,AL
-
-    MOV AH,02h
-
-    MOV DL, 0DH
-    INT 21H
-
-    MOV DL, 0AH
-    INT 21H
-
-    MOV AL,CHAR2
-
-    CMP AL,CHAR1
+    CMP BL, BH
     JE EQU
-    JG L1
-    JL L2
-    L2:
-    MOV DL,CHAR1
-    MOV AH,02
-    INT 21H
-    JMP EXIT
-    L1:
-    MOV DL,AL
-    MOV AH,02
-    INT 21H
-    JMP EXIT
-    EQU:
-    MOV DL,'E'
-    MOV AH,02
+    JL TWOBIG
+
+
+    MOV AH, 09H
+    LEA DX, OBIG
     INT 21H
     JMP EXIT
 
-    ; Repeat the code inside the loop
-    EXIT:
-    JMP MAIN
-    
+EQU:
+    MOV AH, 09H
+    LEA DX, EAL
+    INT 21H
+    JMP EXIT
 
+TWOBIG:
+    MOV AH, 09H
+    LEA DX, TBIG
+    INT 21H 
 
-
-
-
-
-
-
+EXIT:
+    MOV AH, 4CH
+    INT 21H
 
 MAIN ENDP
 END MAIN
-
 
 ; .MODEL SMALL
 ; .STACK 100H

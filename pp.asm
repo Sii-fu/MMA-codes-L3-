@@ -829,3 +829,138 @@ dout endp
 
 end main
 
+
+;;;;; hours minutes seconds
+
+.model small
+.stack 100h
+
+.data
+    prompt db 'Enter total seconds: $'
+    result db 'Time is: $'
+    newline db 13, 10, '$'
+    seconds dw ?
+    hours dw ?
+    minutes dw ?
+    remaining_seconds dw ?
+    time_format db 'HH:MM:SS$'
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+
+    ; Prompt user for input
+    lea dx, prompt
+    mov ah, 09h
+    int 21h
+
+    ; Read input from user and store in 'seconds'
+    call read_seconds
+
+    ; Convert seconds to hours, minutes, and seconds
+    mov ax, seconds
+    call convert_time
+
+    ; Print the result
+    lea dx, newline
+    mov ah, 09h
+    int 21h
+
+    lea dx, result
+    mov ah, 09h
+    int 21h
+
+    call print_time
+
+    ; Exit program
+    mov ah, 4Ch
+    int 21h
+main endp
+
+; Read input from the user and convert to integer
+read_seconds proc
+    xor bx, bx
+    xor cx, cx
+
+    input_loop:
+        mov ah, 1
+        int 21h
+        cmp al, 13          ; Check for Enter key
+        je input_done
+
+        sub al, 48          ; Convert ASCII to number
+        mov cl, al
+        mov ax, 10
+        mul bx
+        add bx, ax
+        add bx, cx
+        jmp input_loop
+
+    input_done:
+        mov seconds, bx
+        ret
+read_seconds endp
+
+; Convert total seconds to hours, minutes, and seconds
+convert_time proc
+    ; ax contains the total seconds
+    mov bx, 3600           ; 1 hour = 3600 seconds
+    div bx                 ; ax = total hours, dx = remaining seconds
+
+    mov hours, ax
+    mov ax, dx             ; load remaining seconds into ax
+
+    mov bx, 60             ; 1 minute = 60 seconds
+    div bx                 ; ax = total minutes, dx = remaining seconds
+
+    mov minutes, ax
+    mov remaining_seconds, dx
+    ret
+convert_time endp
+
+; Print the time in HH:MM:SS format
+print_time proc
+    ; Print hours
+    mov ax, hours
+    call print_two_digits
+
+    ; Print colon
+    mov dl, ':'
+    mov ah, 02h
+    int 21h
+
+    ; Print minutes
+    mov ax, minutes
+    call print_two_digits
+
+    ; Print colon
+    mov dl, ':'
+    mov ah, 02h
+    int 21h
+
+    ; Print seconds
+    mov ax, remaining_seconds
+    call print_two_digits
+
+    ret
+print_time endp
+
+; Print two digits with leading zero if necessary
+print_two_digits proc
+    xor cx, cx
+    mov cx, 10
+    div cx                 ; divide ax by 10, quotient in al, remainder in ah
+    add al, 48             ; convert quotient to ASCII
+    mov dl, al
+    mov ah, 02h
+    int 21h
+    add ah, 48             ; convert remainder to ASCII
+    mov dl, ah
+    mov ah, 02h
+    int 21h
+    ret
+print_two_digits endp
+
+end main
+
